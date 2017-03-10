@@ -23,14 +23,14 @@
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-IPAddress ip(192, 168, 1, 177);
 
+IPAddress startingIP(192, 168, 36, 142);
 unsigned int localPort = 8888;      // local port to listen on
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 char  ReplyBuffer[] = "acknowledged";       // a string to send back
-
+bool isStart = false;
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
@@ -49,22 +49,23 @@ void setup() {
     for (;;)
       ;
   }
-  // print your local IP address:
   printIPAddress();
+  isStart = (Ethernet.localIP() ==  startingIP);
+
   Udp.begin(localPort);
 }
 
 
 void printIPAddress()
 {
-  Serial.print("My IP address: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print(".");
-  }
-
-  Serial.println();
+  Serial.println("My IP address: ");
+  Serial.println(Ethernet.localIP());
+//  for (byte thisByte = 0; thisByte < 4; thisByte++) {
+//    // print the value of each byte of the IP address:
+//    Serial.print(Ethernet.localIP()[thisByte], DEC);
+//    Serial.print(".");
+//  }
+//  Serial.println();
 }
 
 void loop() {
