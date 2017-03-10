@@ -3,7 +3,7 @@
 EthernetUDP udp;
 unsigned long next;
 IPAddress pongIP(192, 168, 36, 142);
-EthernetClient client;
+
 void setup() {
 
   Serial.begin(9600);

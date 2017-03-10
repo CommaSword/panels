@@ -14,14 +14,14 @@
 
 
 #include <SPI.h>         // needed for Arduino versions later than 0018
-#include <Ethernet.h>
+#include <UIPEthernet.h>
 #include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x00
 };
 
 IPAddress pongIP(192, 168, 36, 142);
@@ -38,11 +38,12 @@ EthernetUDP Udp;
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
+  
   // this check is only needed on the Leonardo:
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
+  Serial.print("check1");
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -50,6 +51,7 @@ void setup() {
     for (;;)
       ;
   }
+  Serial.print("check2");
   printIPAddress();
   isStart = (Ethernet.localIP() !=  pongIP);
 
@@ -66,18 +68,11 @@ void printIPAddress()
 {
   Serial.println("My IP address: ");
   Serial.println(Ethernet.localIP());
-//  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-//    // print the value of each byte of the IP address:
-//    Serial.print(Ethernet.localIP()[thisByte], DEC);
-//    Serial.print(".");
-//  }
-//  Serial.println();
 }
 
 void loop() {
   // if there's data available, read a packet
 
-  
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     Serial.print("Received packet of size ");
