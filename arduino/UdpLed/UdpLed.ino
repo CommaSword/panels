@@ -103,7 +103,7 @@ void loop() {
     Udp.write(ReplyBuffer);
     Udp.endPacket();
   }
-  delay(10);
+  delay(1000);
 }
 
 
