@@ -24,12 +24,13 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 
-IPAddress startingIP(192, 168, 36, 142);
+IPAddress pongIP(192, 168, 36, 142);
 unsigned int localPort = 8888;      // local port to listen on
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 char  ReplyBuffer[] = "acknowledged";       // a string to send back
+char  originalPing[] = "Ping"; 
 bool isStart = false;
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -50,9 +51,14 @@ void setup() {
       ;
   }
   printIPAddress();
-  isStart = (Ethernet.localIP() ==  startingIP);
+  isStart = (Ethernet.localIP() !=  pongIP);
 
   Udp.begin(localPort);
+  if (isStart){
+    Udp.beginPacket(pongIP, localPort);
+    Udp.write(originalPing);
+    Udp.endPacket();
+ }
 }
 
 
@@ -70,6 +76,8 @@ void printIPAddress()
 
 void loop() {
   // if there's data available, read a packet
+
+  
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     Serial.print("Received packet of size ");
