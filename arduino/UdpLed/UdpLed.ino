@@ -1,20 +1,8 @@
-/*
- UDPSendReceiveString:
- This sketch receives UDP message strings, prints them to the serial port
- and sends an "acknowledge" string back to the sender
 
- A Processing sketch is included at the end of file that can be used to send
- and received messages for testing with a computer.
-
- created 21 Aug 2010
- by Michael Margolis
-
- This code is in the public domain.
- */
 
 
 #include <SPI.h>         // needed for Arduino versions later than 0018
-#include <UIPEthernet.h>
+#include <Ethernet.h>
 #include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 
 
@@ -24,40 +12,34 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x00
 };
 
-IPAddress pongIP(192, 168, 36, 142);
+IPAddress pongIP(192, 168, 36, 174);
+
 unsigned int localPort = 8888;      // local port to listen on
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 char  ReplyBuffer[] = "acknowledged";       // a string to send back
 char  originalPing[] = "Ping"; 
-bool isStart = false;
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  
+  Serial.println("aaa");
   // this check is only needed on the Leonardo:
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  Serial.print("check1");
   // start the Ethernet connection:
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    for (;;)
-      ;
-  }
-  Serial.print("check2");
+  Ethernet.begin(mac, pongIP);
+  Serial.println("aaa");
   printIPAddress();
-  isStart = (Ethernet.localIP() !=  pongIP);
+//  isStart = (Ethernet.localIP() !=  pongIP);
 
   Udp.begin(localPort);
-  if (isStart){
-    Udp.beginPacket(pongIP, localPort);
+  if (true){
+    Udp.beginPacket(Ethernet.localIP(), localPort);
     Udp.write(originalPing);
     Udp.endPacket();
  }
@@ -98,6 +80,10 @@ void loop() {
     Udp.write(ReplyBuffer);
     Udp.endPacket();
   }
+  Serial.println("check");
+  Udp.beginPacket(Ethernet.localIP(), localPort);
+  Udp.write(originalPing);
+  Udp.endPacket();
   delay(1000);
 }
 
