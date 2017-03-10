@@ -5,7 +5,7 @@ EthernetUDP udp;
 unsigned long next;
 IPAddress pongIP(192, 168, 0, 1);
 //IPAddress selfIP(192, 168, 0, 1);
-IPAddress selfIP(192,168,0,6);
+IPAddress selfIP(192,168,0,1);
 //byte myMac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x00 };
 byte myMac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x01 };
 
