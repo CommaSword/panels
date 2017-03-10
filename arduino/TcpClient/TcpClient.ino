@@ -12,7 +12,6 @@ void setup() {
 
   Serial.begin(9600);
   PanelId panelReadVal = manager.read();
-  uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
   Ethernet.begin(panelReadVal.mac);
 
 //  Serial.print("localIP: ");
