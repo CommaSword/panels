@@ -6,9 +6,18 @@
 
 class GameServer{
 public:
-    void read(char** buffer);
-    void write(char* buffer);
-    void init();
+	int serverState = 0;
+	int clientState = 0;
+	void touchServer();
+    void init(char* id);
+	
+private:
+	void writeState();
+	void readFromServer();
+	void reconnectIfNeeded();
+	void writeInit();
+	void write(char* buffer);
+	void connectToServer();
 };
 
 #endif
