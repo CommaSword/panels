@@ -1,0 +1,50 @@
+#include "PanelId.h"
+#include "UIPEthernet.h"
+#include "GameServer.h"
+
+EthernetClient ethernetClient;
+IPAddress serverIP(10,0,0,3);
+char* initString = "{\"type\":\"hello\",\"id\":\"%s-%d\",\"state\":%d}";
+char* stateString = "{\"type\":\"state\",\"state\":%d}";
+char* noopString = "{\"type\":\"noop\"";
+short clientState = 0;
+char* clientId = "";
+short reconnectNum = 0;
+
+void GameServer::reconnectIfNeeded()
+{	
+	if (ethernetClient.available()) {
+		char c = ethernetClient.read();
+		Serial.print(c);
+	}
+	while(!ethernetClient.connected())
+	{
+		Serial.println();
+		Serial.println("disconnecting...");
+		ethernetClient.stop();
+		Serial.println("connecting...");
+		ethernetClient.connect(serverIP,8888);
+	}
+	Serial.println("connected");
+}	
+
+void GameServer::writeState(short newState){
+	reconnectIfNeeded();
+}
+
+void GameServer::init(char* id, short newState){
+	Serial.println("Init");
+	PanelIdManager manager = PanelIdManager();
+	PanelId panelReadVal = manager.read();
+	Ethernet.begin(panelReadVal.mac);
+	clientId = id;
+	clientState = newState;
+	Serial.println("Loaded client");
+	if (ethernetClient.connect(serverIP, 8888)) {
+		Serial.println("connected");
+		ethernetClient.println("{\"type\":\"hello\",\"id\":\"45\",\"state\":1}");
+		ethernetClient.println();
+	} else {
+		Serial.println("connection failed");
+  }
+}

@@ -1,0 +1,86 @@
+#include "PanelId.h"
+#include "UIPEthernet.h"
+#include "GameServer.h"
+
+EthernetClient ethernetClient;
+IPAddress serverIP(10,0,0,3);
+char* initString = "{\"type\":\"hello\",\"id\":\"%s-%d\",\"state\":%d}";
+char* stateString = "{\"type\":\"state\",\"state\":%d}";
+char* noopString = "{\"type\":\"noop\"";
+short clientState = 0;
+char* clientId = "";
+short reconnectNum = 0;
+
+void GameServer::write(char* buffer){
+	reconnectIfNeeded();
+	Serial.println(buffer);
+	ethernetClient.println(buffer);
+}
+
+void GameServer::writeState(short newState){
+	char* newString = (char*)malloc(27 * sizeof(char));
+	clientState = newState;
+	sprintf(newString, stateString, clientState);
+	write(newString);
+	free(newString);
+}
+
+void GameServer::writeInit(){
+	char* newString = (char*)malloc(40 * sizeof(char));
+	sprintf(newString, initString, clientId, reconnectNum, clientState);
+	write(newString);
+	free(newString);
+}
+
+void GameServer::reconnectIfNeeded(){
+	Serial.println("Check connection");
+	// Checks if we are connected to the server. If not reconnects us to it.
+	ethernetClient.flush();
+	int innertime = 0;
+	while(ethernetClient.connected()==0)
+	{
+		Serial.println("is zero");
+		// ethernetClient.available == 0 -> not ready for socket actions
+		innertime += 10;
+		delay(10);
+		if (RECONNECTION_TIMEOUT - innertime < 0)
+		{
+			// Timeout for connection to be availabe. Kill it and start a new one.
+			Serial.println("Timeout waiting for connection");
+			ethernetClient.stop();
+			Serial.println("Resetting connection");
+			ethernetClient.connect(serverIP,8888);
+			if (ethernetClient.connected()!=0)
+			{
+				reconnectNum++;
+				writeInit();
+			}
+		}
+	}
+	if (ethernetClient.connected()!=0)
+			{
+				Serial.println("not zero");
+			}
+}
+
+void GameServer::read(char** buffer){
+	int size;
+	if((size = ethernetClient.available()) > 0)
+	{
+		size = ethernetClient.read(buffer[0],size);
+		Serial.write(buffer[0]);
+		Serial.println(buffer[0]);
+	}
+	reconnectIfNeeded();
+}
+void GameServer::init(char* id, short newState){
+	Serial.println("Init");
+	PanelIdManager manager = PanelIdManager();
+	PanelId panelReadVal = manager.read();
+	Ethernet.begin(panelReadVal.mac);
+	clientId = id;
+	clientState = newState;
+	reconnectIfNeeded();
+}
+
+
